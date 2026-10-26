@@ -90,14 +90,16 @@ export function SliderTrack({
   const handleMarkerKeyDown = (event: KeyboardEvent<HTMLDivElement>, playerId: string) => {
     if (disabled) return
     const current = positions[playerId] ?? 0.5
-    const step = event.shiftKey ? 0.05 : 0.01
+    // One keypress moves one displayed value (e.g. 0.1), matching how guesses are scored.
+    const gridUnit = 1 / Math.max(1, Math.round(round.rangeSize * 10 ** STAT_CATEGORIES[round.categoryKey].decimals))
+    const step = event.shiftKey ? gridUnit * 5 : gridUnit
     const next: Record<string, number> = {
       ArrowLeft: current - step,
       ArrowDown: current - step,
       ArrowRight: current + step,
       ArrowUp: current + step,
-      PageDown: current - 0.1,
-      PageUp: current + 0.1,
+      PageDown: current - gridUnit * 10,
+      PageUp: current + gridUnit * 10,
       Home: 0,
       End: 1,
     }

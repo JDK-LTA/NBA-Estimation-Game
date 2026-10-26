@@ -4,6 +4,7 @@ import {
   hintBandFor,
   middlePlayersOf,
   scoreRound,
+  snapPosition,
   totalHintsUsed,
   type RoundAnswers,
 } from './roundScoring.ts'
@@ -59,7 +60,7 @@ export function placePlayer(
 
   const player = middlePlayersOf(round).find((p) => p.playerId === playerId)!
   const band = hintBandFor(round, player, current.hints[playerId] ?? 0)
-  const clamped = clampToBand(Math.min(1, Math.max(0, position)), band)
+  const clamped = clampToBand(snapPosition(round, Math.min(1, Math.max(0, position))), band)
   return updateRound(state, roundIndex, {
     ...current,
     positions: { ...current.positions, [playerId]: clamped },

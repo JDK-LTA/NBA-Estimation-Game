@@ -163,6 +163,14 @@ def build_career_values(refresh, index_by_id):
     return stat_values, names
 
 
+def career_year(bio, column):
+    """Start year of a player's first/last season (e.g. 2002 for 2002-03), or None if unknown."""
+    try:
+        return int(bio[column])
+    except (TypeError, KeyError, ValueError):
+        return None
+
+
 def build_players(player_ids, names, teams, index_by_id):
     players = []
     for player_id in sorted(player_ids, key=int):
@@ -177,6 +185,8 @@ def build_players(player_ids, names, teams, index_by_id):
                 "photoAttribution": "NBA.com" if has_photo else None,
                 "position": (bio or {}).get("POSITION") or None,
                 "teams": teams.get(player_id, []),
+                "firstYear": career_year(bio, "FROM_YEAR"),
+                "lastYear": career_year(bio, "TO_YEAR"),
             }
         )
     return players

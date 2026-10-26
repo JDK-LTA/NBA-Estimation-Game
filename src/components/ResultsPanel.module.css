@@ -43,6 +43,37 @@
   font-weight: 700;
 }
 
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.3rem 0;
+}
+
+/* Hint-free day: a gold frame and glow around the whole panel. */
+.gold {
+  box-shadow: 0 0 0 2px #fab005, 0 0 28px rgb(250 176 5 / 35%), var(--shadow);
+}
+
+.gold .kicker {
+  color: #ffe066;
+}
+
+/* Practice replays: slate instead of the full navy, to show it was not the real day. */
+.muted {
+  background: color-mix(in srgb, var(--navy) 45%, #6b7280);
+}
+
+.muted .total {
+  color: rgb(255 255 255 / 82%);
+}
+
+.noHint {
+  color: #ffe066;
+  font-weight: 700;
+}
+
 .base {
   color: rgb(255 255 255 / 68%);
   font-size: 0.85rem;

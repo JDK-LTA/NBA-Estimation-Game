@@ -96,6 +96,24 @@ describe('DayView', () => {
     expect(window.localStorage.getItem('range.v1.practice.2026-10-23')).toBeNull()
   })
 
+  it('celebrates a hint-free official day but not a hint-free practice replay', () => {
+    const official = render(<DayView puzzle={puzzle} players={fixturePlayers} official />)
+    playRound(0)
+    expect(within(screen.getByRole('tab', { name: /Round 1/ })).getByLabelText('Completed without hints')).toBeInTheDocument()
+    playRound(1)
+    playRound(2)
+    expect(screen.getByText('Hint-free day')).toBeInTheDocument()
+    official.unmount()
+    window.localStorage.clear()
+
+    render(<DayView puzzle={puzzle} players={fixturePlayers} official={false} />)
+    playRound(0)
+    playRound(1)
+    playRound(2)
+    expect(screen.getByTestId('daily-total')).toBeInTheDocument()
+    expect(screen.queryByText('Hint-free day')).not.toBeInTheDocument()
+  })
+
   it('offers a shortcut to the next unfinished round', () => {
     render(<DayView puzzle={puzzle} players={fixturePlayers} official />)
     playRound(0)

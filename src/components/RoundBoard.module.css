@@ -73,7 +73,7 @@
 
 .summary {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
   gap: 1rem;
   padding: 0.8rem 1rem;
@@ -111,6 +111,24 @@
   color: color-mix(in srgb, var(--good) 65%, var(--ink-soft));
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+/* Practice replays: same layout, but visibly "not the real day". */
+.summaryMuted {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink-soft);
+}
+
+.summaryMuted .summaryScore small,
+.summaryMuted .base {
+  color: var(--ink-soft);
 }
 
 .tray {

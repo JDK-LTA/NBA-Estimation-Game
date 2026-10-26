@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { clearStored, practiceProgressKey, progressKey } from '../data/storage.ts'
 import { STAT_CATEGORIES } from '../logic/categories.ts'
 import { buildHistoryEntry, isGameComplete } from '../logic/gameState.ts'
-import { scoreRound } from '../logic/roundScoring.ts'
+import { scoreRound, totalHintsUsed } from '../logic/roundScoring.ts'
 import { formatLongDate } from '../logic/dates.ts'
 import { useGame } from '../hooks/useGame.ts'
 import type { DailyPuzzle, Player, UserDailyHistoryEntry } from '../types/index.ts'
@@ -34,6 +34,8 @@ export function DayView({ puzzle, players, official, streak, onComplete, onPlayA
   })
 
   const complete = isGameComplete(state)
+  // Count the final score up only when the day is finished while on screen, not when reopened.
+  const [completeOnMount] = useState(complete)
 
   useEffect(() => {
     if (complete) onComplete?.(buildHistoryEntry(puzzle.date, puzzle.rounds, state, new Date()))
@@ -49,7 +51,17 @@ export function DayView({ puzzle, players, official, streak, onComplete, onPlayA
 
   return (
     <div className={styles.day}>
-      {complete && <ResultsPanel heading={heading} rounds={puzzle.rounds} state={state} streak={official ? streak : undefined} />}
+      {complete && (
+        <ResultsPanel
+          heading={heading}
+          rounds={puzzle.rounds}
+          state={state}
+          streak={official ? streak : undefined}
+          rewardNoHints={official}
+          muted={!official}
+          animate={!completeOnMount}
+        />
+      )}
       {complete && !official && onPlayAgain && (
         <div className={styles.next}>
           <button type="button" className="btn" onClick={playAgain}>
@@ -62,6 +74,8 @@ export function DayView({ puzzle, players, official, streak, onComplete, onPlayA
         {puzzle.rounds.map((round, index) => {
           const roundState = state.rounds[index]
           const category = STAT_CATEGORIES[round.categoryKey]
+          const scored = roundState.submitted ? scoreRound(round, roundState) : null
+          const hintFree = official && scored !== null && totalHintsUsed(roundState.hints) === 0
           return (
             <button
               key={round.categoryKey}
@@ -76,12 +90,13 @@ export function DayView({ puzzle, players, official, streak, onComplete, onPlayA
               <span className={styles.tabIndex}>Round {index + 1}</span>
               <span className={styles.tabName}>{category.unit}</span>
               <ScopeBadge scope={round.scope} />
-              {roundState.submitted && (
-                <span className={styles.tabMeta}>{scoreRound(round, roundState).total + scoreRound(round, roundState).bonus} pts</span>
-              )}
-              {roundState.submitted && (
-                <span className={styles.check} aria-label="Completed">
-                  ✓
+              {scored && <span className={styles.tabMeta}>{scored.total + scored.bonus} pts</span>}
+              {scored && (
+                <span
+                  className={`${styles.check} ${hintFree ? styles.checkGold : ''} ${official ? '' : styles.checkMuted}`}
+                  aria-label={hintFree ? 'Completed without hints' : 'Completed'}
+                >
+                  {hintFree ? '★' : '✓'}
                 </span>
               )}
             </button>
@@ -99,6 +114,8 @@ export function DayView({ puzzle, players, official, streak, onComplete, onPlayA
           onPlace={(playerId, position) => place(activeRound, playerId, position)}
           onHint={(playerId) => hint(activeRound, playerId)}
           onSubmit={() => submit(activeRound)}
+          rewardNoHints={official}
+          muted={!official}
           afterSubmit={
             nextOpenRound !== -1 && (
               <div className={styles.next}>

@@ -12,10 +12,12 @@ import {
   totalHintsUsed,
   valueAtPercent,
 } from '../logic/roundScoring.ts'
+import { ORDER_BONUS } from '../logic/scoring.ts'
 import type { Player, PuzzleRound } from '../types/index.ts'
 import { AnchorCard } from './AnchorCard.tsx'
 import { PlayerCard } from './PlayerCard.tsx'
 import { ScopeBadge } from './ScopeBadge.tsx'
+import { BonusPill, NoHintsChip, ScoreReveal } from './ScoreReveal.tsx'
 import { SliderTrack } from './SliderTrack.tsx'
 import styles from './RoundBoard.module.css'
 
@@ -31,6 +33,10 @@ interface RoundBoardProps {
   onSubmit: () => void
   /** Rendered after the round is submitted (e.g. "next round" or "reroll" actions). */
   afterSubmit?: ReactNode
+  /** Official daily play: a hint-free round earns a gold badge. */
+  rewardNoHints?: boolean
+  /** Practice (archive) replays show scores in muted colours. */
+  muted?: boolean
 }
 
 function firstUnplaced(round: PuzzleRound, positions: Record<string, number>, skipId?: string): string | null {
@@ -46,6 +52,8 @@ export function RoundBoard({
   onHint,
   onSubmit,
   afterSubmit,
+  rewardNoHints = false,
+  muted = false,
 }: RoundBoardProps) {
   const category = STAT_CATEGORIES[round.categoryKey]
   const middles = middlePlayersOf(round)
@@ -55,6 +63,9 @@ export function RoundBoard({
   )
 
   const revealed = state.submitted
+  // Only play the reveal animation when this round is locked in while on screen, not when revisited.
+  const [revealedOnMount] = useState(state.submitted)
+  const animateReveal = revealed && !revealedOnMount
   const hintsUsed = totalHintsUsed(state.hints)
   const hintsLeft = Math.max(0, hintsPerRound - hintsUsed)
   const complete = isRoundFullyPlaced(round, state)
@@ -138,17 +149,20 @@ export function RoundBoard({
       />
 
       {revealed && (
-        <div className={styles.summary} role="status">
+        <div className={`${styles.summary} ${muted ? styles.summaryMuted : ''}`} role="status">
           <span className={styles.summaryScore}>
-            {scored.total + scored.bonus}
-            <small> / {scored.max}</small>
+            <ScoreReveal base={scored.total} bonus={scored.bonus} max={scored.max} animate={animateReveal} />
           </span>
           <span className={styles.summaryDetail}>
             <span className={styles.verdict}>{verdict}</span>
             <span className={styles.base}>
-              {scored.bonus > 0
-                ? `${scored.total} without bonus · +${scored.bonus} for the exact order`
-                : 'Order bonus missed (+100 for the exact order)'}
+              {scored.bonus > 0 ? `${scored.total} without bonus` : `${scored.total} from placements`}
+              {scored.hintPenalty > 0 &&
+                ` · hints cost ${scored.hintPenalty} pts (${scored.total + scored.hintPenalty} without hints)`}
+            </span>
+            <span className={styles.badges}>
+              <BonusPill earned={scored.bonus > 0} bonus={ORDER_BONUS} animate={animateReveal} />
+              {rewardNoHints && hintsUsed === 0 && <NoHintsChip animate={animateReveal}>No hints used</NoHintsChip>}
             </span>
           </span>
         </div>
@@ -171,6 +185,8 @@ export function RoundBoard({
               canHint={!revealed && hintsLeft > 0}
               revealed={revealed}
               score={revealed ? scored.playerScores[id] : undefined}
+              baseScore={revealed ? scored.playerBaseScores[id] : undefined}
+              muted={muted}
               actualLabel={formatStatValue(player.value, round.categoryKey)}
               unit={category.unit}
               onSelect={() => setSelectedId(id)}

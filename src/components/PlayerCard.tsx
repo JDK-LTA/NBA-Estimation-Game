@@ -18,6 +18,10 @@ interface PlayerCardProps {
   canHint: boolean
   revealed: boolean
   score?: number
+  /** What the guess would have scored without hints. */
+  baseScore?: number
+  /** Practice (archive) replays use muted colours. */
+  muted?: boolean
   actualLabel?: string
   unit: string
   onSelect: () => void
@@ -35,6 +39,8 @@ export function PlayerCard({
   canHint,
   revealed,
   score,
+  baseScore,
+  muted = false,
   actualLabel,
   unit,
   onSelect,
@@ -43,6 +49,7 @@ export function PlayerCard({
   const name = player?.fullName ?? 'Unknown player'
   const nextCap = Math.round(penaltyMultiplier(hintCount + 1) * 100)
   const tier = score === undefined ? 0 : scoreTier(score / 100)
+  const hintCost = baseScore !== undefined && score !== undefined ? baseScore - score : 0
 
   return (
     <li
@@ -67,9 +74,19 @@ export function PlayerCard({
         </span>
         <span className={styles.status}>
           {revealed ? (
-            <span className={`${styles.score} ${styles[`tier${tier}`]}`} aria-label={`Score ${score}`}>
-              {score}
-            </span>
+            <>
+              {hintCost > 0 && (
+                <s className={styles.was} aria-label={`Without hints ${baseScore}`}>
+                  {baseScore}
+                </s>
+              )}
+              <span
+                className={`${styles.score} ${styles[`tier${tier}`]} ${muted ? styles.mutedScore : ''}`}
+                aria-label={`Score ${score}`}
+              >
+                {score}
+              </span>
+            </>
           ) : guessLabel !== undefined ? (
             <span className={styles.guess}>
               {guessLabel}
@@ -90,7 +107,7 @@ export function PlayerCard({
               · you said <strong>{guessLabel}</strong>
             </>
           )}
-          {hintCount > 0 && ` · ${hintCount} hint${hintCount === 1 ? '' : 's'}`}
+          {hintCount > 0 && ` · ${hintCount} hint${hintCount === 1 ? '' : 's'}${hintCost > 0 ? ` cost ${hintCost} pt${hintCost === 1 ? '' : 's'}` : ''}`}
         </p>
       ) : (
         <div className={styles.actions}>

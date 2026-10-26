@@ -7,7 +7,7 @@ import { RoundBoard } from './RoundBoard.tsx'
 
 const rounds: PuzzleRound[] = [makeRound()]
 
-function Harness({ hintsPerRound = 3 }: { hintsPerRound?: number }) {
+function Harness({ hintsPerRound = 3, rewardNoHints = false }: { hintsPerRound?: number; rewardNoHints?: boolean }) {
   const { state, place, hint, submit } = useGame(rounds, hintsPerRound, null)
   return (
     <RoundBoard
@@ -19,6 +19,7 @@ function Harness({ hintsPerRound = 3 }: { hintsPerRound?: number }) {
       onHint={(id) => hint(0, id)}
       onSubmit={() => submit(0)}
       afterSubmit={<p>All done</p>}
+      rewardNoHints={rewardNoHints}
     />
   )
 }
@@ -138,5 +139,43 @@ describe('RoundBoard (full round)', () => {
     for (const button of screen.getAllByRole('button', { name: /Use a hint on/ })) {
       expect(button).toBeDisabled()
     }
+  })
+
+  const lockInAllAtMiddle = () => {
+    fireEvent.click(track())
+    fireEvent.click(track())
+    fireEvent.click(track())
+    fireEvent.click(screen.getByRole('button', { name: 'Lock in round' }))
+  }
+
+  it('shows what a hinted player would have scored without the hint', () => {
+    render(<Harness />)
+    fireEvent.click(screen.getByRole('button', { name: /Use a hint on Alpha Player/ }))
+    lockInAllAtMiddle()
+
+    // Alpha: 75 without a hint, 56 with one.
+    const card = within(screen.getByTestId('card-a'))
+    expect(card.getByLabelText('Without hints 75')).toBeInTheDocument()
+    expect(card.getByLabelText('Score 56')).toBeInTheDocument()
+    expect(card.getByText(/1 hint cost 19 pts/)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('hints cost 19 pts')
+  })
+
+  it('rewards a hint-free round only when rewards are on', () => {
+    const first = render(<Harness rewardNoHints />)
+    lockInAllAtMiddle()
+    expect(screen.getByText('No hints used')).toBeInTheDocument()
+    first.unmount()
+
+    render(<Harness rewardNoHints />)
+    fireEvent.click(screen.getByRole('button', { name: /Use a hint on Alpha Player/ }))
+    lockInAllAtMiddle()
+    expect(screen.queryByText('No hints used')).not.toBeInTheDocument()
+  })
+
+  it('does not show the hint-free badge outside official play', () => {
+    render(<Harness />)
+    lockInAllAtMiddle()
+    expect(screen.queryByText('No hints used')).not.toBeInTheDocument()
   })
 })

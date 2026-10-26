@@ -72,6 +72,16 @@
   justify-content: center;
 }
 
+.checkGold {
+  background: linear-gradient(135deg, #ffe066, #f59f00);
+  box-shadow: 0 0 8px rgb(250 176 5 / 60%);
+  color: #3b2a00;
+}
+
+.checkMuted {
+  background: var(--ink-soft);
+}
+
 @media (max-width: 480px) {
   .tab {
     padding: 0.5rem 0.55rem;

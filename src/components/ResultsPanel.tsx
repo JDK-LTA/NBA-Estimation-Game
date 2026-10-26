@@ -6,7 +6,9 @@ import type { GameState } from '../logic/gameState.ts'
 import { scoreTier } from '../logic/history.ts'
 import { middlePlayersOf, scoreRound, totalHintsUsed } from '../logic/roundScoring.ts'
 import { buildShareText, squareFor, type ShareRound } from '../logic/share.ts'
+import { ORDER_BONUS } from '../logic/scoring.ts'
 import type { PuzzleRound } from '../types/index.ts'
+import { BonusPill, NoHintsChip, ScoreReveal } from './ScoreReveal.tsx'
 import styles from './ResultsPanel.module.css'
 
 const VERDICTS = ['Back to the film room', 'Room to grow', 'Solid showing', 'Sharp eye', 'Dead-eye shooter'] as const
@@ -17,9 +19,15 @@ interface ResultsPanelProps {
   state: GameState
   /** Shown only for official daily results. */
   streak?: number
+  /** Official daily play: a hint-free day gets a gold banner. */
+  rewardNoHints?: boolean
+  /** Practice (archive) replays use muted colours. */
+  muted?: boolean
+  /** Count the score up (only when the day was just finished on screen). */
+  animate?: boolean
 }
 
-export function ResultsPanel({ heading, rounds, state, streak }: ResultsPanelProps) {
+export function ResultsPanel({ heading, rounds, state, streak, rewardNoHints = false, muted = false, animate = false }: ResultsPanelProps) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle')
   const { score, max, bonus } = gameTotal(state, rounds)
   const fraction = max > 0 ? score / max : 0
@@ -42,19 +50,34 @@ export function ResultsPanel({ heading, rounds, state, streak }: ResultsPanelPro
     window.setTimeout(() => setCopyState('idle'), 2400)
   }
 
+  const scoredRounds = rounds.map((round, index) => scoreRound(round, state.rounds[index]))
+  const hintPenalty = scoredRounds.reduce((sum, scored) => sum + scored.hintPenalty, 0)
+  const hintFree = shareRounds.every((round) => round.hintsUsed === 0)
+  const showHintFree = rewardNoHints && hintFree
+  const bonusRounds = scoredRounds.filter((scored) => scored.bonus > 0).length
+
   return (
-    <section className={styles.panel} aria-label="Results">
+    <section
+      className={`${styles.panel} ${muted ? styles.muted : ''} ${showHintFree ? styles.gold : ''}`}
+      aria-label="Results"
+    >
       <div className={styles.top}>
         <p className={styles.kicker}>{heading}</p>
         <p className={styles.total} data-testid="daily-total">
-          {format(score + bonus)}
-          <small> / {format(max)}</small>
+          <ScoreReveal base={score} bonus={bonus} max={max} animate={animate} format={format} />
         </p>
         <p className={styles.base} data-testid="daily-base">
-          {bonus > 0
-            ? `${format(score)} without bonus · +${format(bonus)} order bonus`
-            : 'No order bonus (+100 a round for the exact order)'}
+          {format(score)} from placements
+          {hintPenalty > 0 && ` · hints cost ${format(hintPenalty)} pts (${format(score + hintPenalty)} without hints)`}
         </p>
+        <div className={styles.badges}>
+          {bonusRounds > 0 ? (
+            <BonusPill earned bonus={bonus} animate={animate} label={`order bonus (${bonusRounds}/${rounds.length} rounds)`} />
+          ) : (
+            <BonusPill earned={false} bonus={ORDER_BONUS} animate={animate} />
+          )}
+          {showHintFree && <NoHintsChip animate={animate}>Hint-free day</NoHintsChip>}
+        </div>
         <p className={styles.verdict}>
           {VERDICTS[scoreTier(fraction)]} · {Math.round(fraction * 100)}%
         </p>
@@ -70,13 +93,18 @@ export function ResultsPanel({ heading, rounds, state, streak }: ResultsPanelPro
           <li key={index} className={styles.round}>
             <span className={styles.roundName}>
               {STAT_CATEGORIES[round.categoryKey].unit}
-              <small>{SCOPE_LABELS[round.scope]}</small>
+              <small>
+                {SCOPE_LABELS[round.scope]}
+                {rewardNoHints && round.hintsUsed === 0 && state.rounds[index].submitted && (
+                  <span className={styles.noHint}> · ✦ no hints</span>
+                )}
+              </small>
             </span>
             <span className={styles.squares} aria-hidden="true">
               {round.playerScores.map((playerScore) => squareFor(playerScore)).join('')}
             </span>
             <span className={styles.roundScore}>
-              {state.rounds[index].submitted ? scoreRound(rounds[index], state.rounds[index]).total : '-'}
+              {state.rounds[index].submitted ? scoredRounds[index].total : '-'}
               {round.bonus > 0 && <em className={styles.bonusChip}>+{round.bonus}</em>}
             </span>
           </li>

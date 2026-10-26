@@ -1,0 +1,128 @@
+.earned,
+.missed,
+.noHints {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  padding: 0.15rem 0.7rem;
+  overflow: hidden;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.earned,
+.noHints {
+  background: linear-gradient(135deg, #ffe066, #fab005 55%, #f59f00);
+  box-shadow: 0 0 0 1px rgb(245 159 0 / 55%), 0 2px 10px rgb(245 159 0 / 35%);
+  color: #3b2a00;
+}
+
+.earned::after,
+.noHints::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 65%) 50%, transparent 65%);
+  content: '';
+  transform: translateX(-120%);
+}
+
+.missed {
+  background: rgb(127 127 127 / 20%);
+  color: inherit;
+  font-weight: 650;
+  opacity: 0.85;
+}
+
+.missed s {
+  text-decoration-thickness: 2px;
+}
+
+/* Gold pop, glow and a light sweep once the base score has counted up. */
+.earnedPlay {
+  animation: bonusPop 0.8s cubic-bezier(0.2, 1.5, 0.4, 1) 1.25s both, bonusGlow 1.6s ease-in-out 2.05s 2;
+}
+
+.earnedPlay::after {
+  animation: shine 0.9s ease-out 1.55s both;
+}
+
+.noHintsPlay {
+  animation: bonusPop 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) 0.4s both;
+}
+
+.noHintsPlay::after {
+  animation: shine 1s ease-out 0.9s both;
+}
+
+/* Missed: appears, wobbles once, and settles into the muted look. */
+.missedPlay {
+  animation: missedIn 0.6s ease 1.25s both;
+}
+
+@keyframes bonusPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-8deg);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.12) rotate(2deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes bonusGlow {
+  50% {
+    box-shadow: 0 0 0 1px rgb(245 159 0 / 80%), 0 0 22px 4px rgb(255 212 59 / 70%);
+  }
+}
+
+@keyframes shine {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes missedIn {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateX(-5px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  70% {
+    transform: translateX(-3px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .earnedPlay,
+  .earnedPlay::after,
+  .noHintsPlay,
+  .noHintsPlay::after,
+  .missedPlay {
+    animation: none;
+  }
+}

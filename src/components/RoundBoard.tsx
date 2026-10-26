@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react'
-import { SCOPE_LABELS, STAT_CATEGORIES, formatStatValue } from '../logic/categories.ts'
+import { useState, type CSSProperties, type ReactNode } from 'react'
+import { SCOPE_DESCRIPTIONS, STAT_CATEGORIES, formatStatValue } from '../logic/categories.ts'
 import { isRoundFullyPlaced, type RoundState } from '../logic/gameState.ts'
 import type { Band } from '../logic/hints.ts'
 import { PLAYER_COLORS } from '../logic/display.ts'
@@ -15,6 +15,7 @@ import {
 import type { Player, PuzzleRound } from '../types/index.ts'
 import { AnchorCard } from './AnchorCard.tsx'
 import { PlayerCard } from './PlayerCard.tsx'
+import { ScopeBadge } from './ScopeBadge.tsx'
 import { SliderTrack } from './SliderTrack.tsx'
 import styles from './RoundBoard.module.css'
 
@@ -88,12 +89,19 @@ export function RoundBoard({
   const verdict = VERDICTS[scoreTier(scored.max > 0 ? scored.total / scored.max : 0)]
 
   return (
-    <section className={styles.board} aria-label={`${category.label} round`}>
+    <section
+      className={styles.board}
+      style={{ '--scope-color': `var(--scope-${round.scope})` } as CSSProperties}
+      aria-label={`${category.label} round`}
+    >
       <header className={styles.header}>
         <div>
-          <h2 className={styles.title}>{category.label}</h2>
+          <div className={styles.titleRow}>
+            <h2 className={styles.title}>{category.label}</h2>
+            <ScopeBadge scope={round.scope} size="lg" />
+          </div>
+          <p className={styles.scopeNote}>{SCOPE_DESCRIPTIONS[round.scope]}</p>
           <p className={styles.subtitle}>
-            <span className={styles.scope}>{SCOPE_LABELS[round.scope]}</span>
             <span title="The slider's width varies slightly from puzzle to puzzle; the two anchors mark its exact ends.">
               Slider spans ~{formatStatValue(round.nominalRangeSize ?? round.rangeSize, round.categoryKey)} {category.unit}
             </span>
@@ -155,6 +163,7 @@ export function RoundBoard({
               key={id}
               player={players[id]}
               selection={player}
+              scope={round.scope}
               color={colors[id]}
               selected={selectedId === id}
               guessLabel={position === undefined ? undefined : formatStatValue(valueAtPercent(round, position), round.categoryKey)}

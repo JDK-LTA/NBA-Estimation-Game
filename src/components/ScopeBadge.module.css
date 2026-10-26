@@ -1,0 +1,33 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--scope-color) 16%, transparent);
+  color: var(--scope-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--scope-color) 45%, transparent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--scope-color);
+  content: '';
+}
+
+.large {
+  padding: 0.25rem 0.85rem;
+  font-size: 0.85rem;
+}
+
+.large::before {
+  width: 0.6rem;
+  height: 0.6rem;
+}

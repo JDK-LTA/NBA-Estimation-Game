@@ -1,4 +1,4 @@
-import { formatStatValue } from '../logic/categories.ts'
+import { entryLabel, formatStatValue } from '../logic/categories.ts'
 import type { Player, PuzzleRound, RoundPlayerSelection } from '../types/index.ts'
 import { PlayerAvatar } from './PlayerAvatar.tsx'
 import styles from './AnchorCard.module.css'
@@ -19,7 +19,7 @@ export function AnchorCard({ anchor, player, round, side }: AnchorCardProps) {
         <span className={styles.tag}>{side === 'low' ? 'Low anchor' : 'High anchor'}</span>
         <span className={styles.name}>{player?.fullName ?? 'Unknown player'}</span>
         <span className={styles.meta}>
-          {anchor.season ?? 'Career'}
+          {entryLabel(round.scope, anchor.season)}
           {player?.position ? ` · ${player.position}` : ''}
         </span>
       </div>

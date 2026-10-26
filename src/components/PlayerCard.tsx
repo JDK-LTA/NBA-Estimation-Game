@@ -1,13 +1,15 @@
 import type { CSSProperties } from 'react'
+import { entryLabel } from '../logic/categories.ts'
 import { penaltyMultiplier } from '../logic/scoring.ts'
 import { scoreTier } from '../logic/history.ts'
-import type { Player, RoundPlayerSelection } from '../types/index.ts'
+import type { Player, RoundPlayerSelection, Scope } from '../types/index.ts'
 import { PlayerAvatar } from './PlayerAvatar.tsx'
 import styles from './PlayerCard.module.css'
 
 interface PlayerCardProps {
   player: Player | undefined
   selection: RoundPlayerSelection
+  scope: Scope
   color: string
   selected: boolean
   /** Formatted current guess, e.g. "17.4"; undefined until placed. */
@@ -25,6 +27,7 @@ interface PlayerCardProps {
 export function PlayerCard({
   player,
   selection,
+  scope,
   color,
   selected,
   guessLabel,
@@ -58,7 +61,7 @@ export function PlayerCard({
         <span className={styles.text}>
           <span className={styles.name}>{name}</span>
           <span className={styles.meta}>
-            {selection.season ?? 'Career'}
+            {entryLabel(scope, selection.season)}
             {player?.position ? ` · ${player.position}` : ''}
           </span>
         </span>

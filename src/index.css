@@ -16,6 +16,9 @@
   --warn: #f08c00;
   --bad: #d62828;
   --focus: #1c7ed6;
+  --scope-career: #7048e8;
+  --scope-season: #1c7ed6;
+  --scope-playoffs: #c92a2a;
   --shadow: 0 1px 2px rgb(20 33 61 / 8%), 0 6px 18px rgb(20 33 61 / 8%);
 
   --radius: 14px;
@@ -48,6 +51,9 @@
     --warn: #ffa94d;
     --bad: #ff6b6b;
     --focus: #74c0fc;
+    --scope-career: #9775fa;
+    --scope-season: #4dabf7;
+    --scope-playoffs: #ff6b6b;
     --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 30%);
   }
 }
@@ -69,6 +75,9 @@
   --warn: #ffa94d;
   --bad: #ff6b6b;
   --focus: #74c0fc;
+  --scope-career: #9775fa;
+  --scope-season: #4dabf7;
+  --scope-playoffs: #ff6b6b;
   --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 30%);
 }
 

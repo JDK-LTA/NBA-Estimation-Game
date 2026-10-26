@@ -1,4 +1,4 @@
-import type { CategoryKey, StatCategory } from '../types/index.ts'
+import type { CategoryKey, Scope, StatCategory } from '../types/index.ts'
 
 // Keep in sync with data-pipeline/config.py (TDD.md 2.2).
 export const STAT_CATEGORIES: Record<CategoryKey, StatCategory> = {
@@ -25,6 +25,19 @@ export const SCOPE_LABELS = {
   season: 'Single Season',
   playoffs: 'Playoff Run',
 } as const
+
+/** One-line explanation shown with every round so the type of numbers is never ambiguous. */
+export const SCOPE_DESCRIPTIONS = {
+  career: 'Career averages: every player is rated over their whole career.',
+  season: 'Regular-season averages: each player can be from a different season.',
+  playoffs: 'Playoff averages: each player can be from a different postseason run.',
+} as const
+
+/** What a player's number refers to, e.g. "Career", "2016-17" or "2016-17 playoffs". */
+export function entryLabel(scope: Scope, season: string | null): string {
+  if (scope === 'career' || !season) return 'Career'
+  return scope === 'playoffs' ? `${season} playoffs` : season
+}
 
 export function formatStatValue(value: number, categoryKey: CategoryKey): string {
   return value.toFixed(STAT_CATEGORIES[categoryKey].decimals)

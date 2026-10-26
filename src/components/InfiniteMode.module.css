@@ -1,0 +1,150 @@
+.infinite {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings {
+  padding: 1rem 1.25rem 1.25rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.summary {
+  font-size: 1.05rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field legend {
+  margin-bottom: 0.45rem;
+  padding: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wide {
+  grid-column: 1 / -1;
+  align-items: stretch;
+}
+
+.label {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.label strong {
+  color: var(--ink);
+}
+
+.helper {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chip:has(:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.chipOn {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.field input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.advanced {
+  margin-top: 1rem;
+  color: var(--ink-soft);
+}
+
+.advanced summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.rangeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.6rem 1.5rem;
+  margin-top: 0.8rem;
+}
+
+.rangeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rangeRow .label {
+  min-width: 3.4rem;
+}
+
+.reset {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.afterRow {
+  display: flex;
+  justify-content: center;
+}

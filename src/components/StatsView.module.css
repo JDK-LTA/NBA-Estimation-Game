@@ -1,0 +1,262 @@
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.tab {
+  padding: 0.5rem 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--ink);
+}
+
+.tabActive,
+.tabActive:hover {
+  background: var(--navy);
+  color: #fff;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.breakdownRow {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) 1fr 5.5rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.breakdownLabel {
+  overflow: hidden;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meter {
+  height: 0.7rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.meterFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.breakdownValue {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdownValue small {
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .breakdownRow {
+    grid-template-columns: 1fr 4.5rem;
+  }
+
+  .meter {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 3rem 1.25rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.empty h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+}
+
+.empty p {
+  max-width: 34ch;
+  color: var(--ink-soft);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 520px) {
+  .tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 1rem 0.5rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card {
+  padding: 1.1rem 1.25rem 1.25rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.heading {
+  margin-bottom: 0.9rem;
+  font-size: 1rem;
+}
+
+.bars {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  height: 170px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barItem {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  max-width: 34px;
+  min-height: 6px;
+  border-radius: 6px 6px 2px 2px;
+}
+
+.barValue {
+  font-size: 0.7rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.barLabel {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--ink-soft);
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.heatmap {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 1fr);
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+  max-width: 460px;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+
+.future {
+  opacity: 0.35;
+}
+
+.tier0 {
+  background: color-mix(in srgb, var(--bad) 70%, var(--surface-2));
+}
+
+.tier1 {
+  background: color-mix(in srgb, var(--bad) 45%, var(--warn));
+}
+
+.tier2 {
+  background: var(--warn);
+}
+
+.tier3 {
+  background: color-mix(in srgb, var(--good) 70%, var(--surface-2));
+}
+
+.tier4 {
+  background: var(--good);
+}

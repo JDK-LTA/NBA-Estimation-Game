@@ -1,11 +1,39 @@
 import { useMemo, useState } from 'react'
 import { STAT_CATEGORIES, SCOPE_LABELS } from '../logic/categories.ts'
 import { daysInMonth, formatLongDate, formatMonth, makeDate, weekdayOf } from '../logic/dates.ts'
-import { scoreTier, totalScoreOf, type HistoryMap } from '../logic/history.ts'
-import type { PuzzleArchiveIndexEntry } from '../types/index.ts'
+import { describeDay, scoreTier, totalScoreOf, type HistoryMap } from '../logic/history.ts'
+import type { PuzzleArchiveIndexEntry, UserDailyHistoryEntry } from '../types/index.ts'
 import styles from './ArchiveCalendar.module.css'
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+
+function tierOf(entry: UserDailyHistoryEntry): number {
+  return scoreTier(entry.maxScore > 0 ? entry.dailyScore / entry.maxScore : 0)
+}
+
+/** One finished result (official or practice) with its short read on how it went. */
+function ResultLine({ label, entry, muted }: { label: string; entry: UserDailyHistoryEntry; muted?: boolean }) {
+  const day = describeDay(entry)
+  return (
+    <div className={`${styles.result} ${muted ? styles.resultMuted : ''}`}>
+      <p className={styles.resultHead}>
+        <span className={styles.resultLabel}>{label}</span>
+        <strong>
+          {totalScoreOf(entry).toLocaleString('en-US')}
+          <small> / {entry.maxScore.toLocaleString('en-US')}</small>
+        </strong>
+        <span className={styles.resultVerdict}>{day.verdict}</span>
+      </p>
+      <ul className={styles.tidbits}>
+        {day.tidbits.map((tidbit) => (
+          <li key={tidbit} className={!muted && day.hintFree && tidbit === 'No hints' ? styles.gold : ''}>
+            {tidbit}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 interface ArchiveCalendarProps {
   index: PuzzleArchiveIndexEntry[]
@@ -72,8 +100,11 @@ export function ArchiveCalendar({ index, history, practice, today, onPractice, o
           const isFuture = date > today
           const played = history[date]
           const practiced = practice[date]
-          const tier = played ? scoreTier(played.maxScore > 0 ? played.dailyScore / played.maxScore : 0) : null
+          const tier = played ? tierOf(played) : practiced ? tierOf(practiced) : null
+          const practiceOnly = practiced && !played
+          const shown = played ?? practiced
           const playable = available && !isFuture
+          const tooltip = shown ? `${describeDay(shown).verdict} · ${describeDay(shown).tidbits.join(' · ')}${practiceOnly ? ' (practice)' : ''}` : undefined
 
           return (
             <button
@@ -85,28 +116,36 @@ export function ArchiveCalendar({ index, history, practice, today, onPractice, o
                 playable ? styles.available : '',
                 isToday ? styles.today : '',
                 selected === date ? styles.selected : '',
-                practiced && !played ? styles.practiced : '',
+                practiceOnly ? styles.practiced : '',
                 tier !== null ? styles[`tier${tier}`] : '',
+                practiceOnly ? styles.practiceOnly : '',
+                played && describeDay(played).hintFree ? styles.hintFree : '',
               ].join(' ')}
               disabled={!playable}
+              title={tooltip}
               aria-label={`${formatLongDate(date)}${isToday ? ', today' : ''}${played ? `, scored ${totalScoreOf(played)}` : ''}${practiced ? `, practiced, scored ${totalScoreOf(practiced)}` : ''}${available && isFuture ? ', not yet available' : ''}`}
               aria-selected={selected === date}
               onClick={() => (isToday ? onPlayToday() : setSelected(date))}
             >
-              {i + 1}
+              <span className={styles.dayNumber}>{i + 1}</span>
+              {shown && (
+                <small className={styles.dayScore} aria-hidden="true">
+                  {totalScoreOf(shown)}
+                </small>
+              )}
             </button>
           )
         })}
       </div>
 
       <p className={styles.legend}>
-        Colored days were played officially (color reflects your score); a dotted outline marks a saved practice
-        replay. Replays are never counted in your streak or stats.
+        Colored days were played on the day (color reflects your score; a gold corner means no hints). Muted days with
+        a dotted outline are practice replays, which never count toward your streak or stats.
       </p>
 
       {selectedEntry && (
         <div className={styles.detail}>
-          <div>
+          <div className={styles.detailBody}>
             <h3 className={styles.detailDate}>{formatLongDate(selectedEntry.date)}</h3>
             <ul className={styles.chips}>
               {selectedEntry.categoryKeys.map((key, i) => (
@@ -115,9 +154,11 @@ export function ArchiveCalendar({ index, history, practice, today, onPractice, o
                 </li>
               ))}
             </ul>
+            {history[selectedEntry.date] && <ResultLine label="Played on the day" entry={history[selectedEntry.date]} />}
+            {practice[selectedEntry.date] && <ResultLine label="Practice" entry={practice[selectedEntry.date]} muted />}
           </div>
           <button type="button" className="btn btn-primary" onClick={() => onPractice(selectedEntry.date)}>
-            Play practice
+            {practice[selectedEntry.date] ? 'Open practice' : 'Play practice'}
           </button>
         </div>
       )}

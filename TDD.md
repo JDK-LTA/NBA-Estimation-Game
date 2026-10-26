@@ -172,6 +172,18 @@ player_score = round(base_score * penaltyMultiplier(hintsOnThisPlayer))
 Round score = sum of the `N` middle-player scores. Daily score = sum of the
 3 round scores; the shown maximum is `3 x N x 100` (1,500 by default).
 
+**Discrete scoring:** guesses are scored on the grid of displayed values
+(tenths for most stats), not on raw slider pixels. Both the guess and the real
+value are rounded to one display unit before `user_pct` / `actual_pct` are
+computed, so a marker that reads 2.0 is exactly 2.0 even if the thumb sits a
+hair off. Placing a marker snaps it to that grid, and arrow keys move one
+displayed unit. The order bonus compares the same rounded values, so two
+markers on the same displayed value are a tie and don't earn it.
+
+**Hint cost is shown:** each revealed player card shows the pre-hint score
+struck through next to the final one, and the round and day summaries state
+how many points hints cost (and the score without them).
+
 **Order bonus (optional extra):** a round earns **+100** if every middle
 marker ends up in the exact left-to-right order of the real values (ties in the
 guesses don't count). It is never part of the shown maximum, so the total can
@@ -890,6 +902,21 @@ outright.
   refers to ("Career", "2016-17" or "2016-17 playoffs").
 - **Archive immutability:** the batch script never regenerates an existing
   date; it only fills missing dates and rebuilds cooldown history from disk.
+- **Hint-free reward (official daily only):** a round finished without hints
+  gets a gold "No hints used" chip and a gold star on its tab; a day with no
+  hints at all gets a gold "Hint-free day" frame on the results panel and a
+  gold corner on its archive cell. Practice replays never show these.
+- **Archive calendar shows results:** each played day shows its score in the
+  cell (tier colour for official play). Practice-only days show the score in
+  desaturated colours with a dotted outline; the day detail lists the official
+  and practice results separately with short tidbits from `describeDay` (exact
+  orders, hints, best round, verdict). Practice results use muted colours
+  everywhere (round summary, score chips, results panel, tabs).
+- **Score animation:** when a round or the day is finished on screen, the big
+  score counts up and the +100 order bonus lands afterwards (gold pop, glow and
+  shine when earned; a muted, struck-through "Order bonus missed" with a small
+  wobble when not). Nothing animates when a finished round or day is reopened,
+  or when the user prefers reduced motion.
 - **Photos:** only players that appear in generated puzzles get a downloaded
   headshot; everyone else gets an initials avatar.
 

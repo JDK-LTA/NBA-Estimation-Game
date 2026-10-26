@@ -1,4 +1,5 @@
 import { shiftDate } from './dates.ts'
+import { STAT_CATEGORIES } from './categories.ts'
 import type { UserDailyHistoryEntry } from '../types/index.ts'
 
 export type HistoryMap = Record<string, UserDailyHistoryEntry>
@@ -82,4 +83,39 @@ export function scoreTier(fraction: number): 0 | 1 | 2 | 3 | 4 {
   if (fraction >= 0.65) return 2
   if (fraction >= 0.4) return 1
   return 0
+}
+
+export interface DayDescription {
+  /** One-word read on the day, e.g. "Dead-eye". */
+  verdict: string
+  /** Short facts such as "Exact order x2" or "No hints". */
+  tidbits: string[]
+  hintsUsed: number
+  /** No hints in any round. */
+  hintFree: boolean
+}
+
+const DAY_VERDICTS = ['Tough day', 'Getting there', 'Solid', 'Sharp', 'Dead-eye'] as const
+
+/** A short, spoiler-free summary of how a finished day went. */
+export function describeDay(entry: UserDailyHistoryEntry): DayDescription {
+  const rounds = entry.roundResults
+  const hintsUsed = rounds.reduce(
+    (sum, round) => sum + Object.values(round.hintsUsedByPlayer).reduce((a, b) => a + b, 0),
+    0,
+  )
+  const bonusRounds = rounds.filter((round) => (round.bonus ?? 0) > 0).length
+  const roundMax = rounds.length > 0 ? entry.maxScore / rounds.length : 0
+  const hintFree = hintsUsed === 0
+
+  const tidbits: string[] = []
+  if (bonusRounds > 0) tidbits.push(bonusRounds === rounds.length ? 'Exact order every round' : `Exact order x${bonusRounds}`)
+  tidbits.push(hintFree ? 'No hints' : `${hintsUsed} hint${hintsUsed === 1 ? '' : 's'}`)
+  if (rounds.length > 1 && roundMax > 0) {
+    const best = rounds.reduce((top, round) => (round.score > top.score ? round : top))
+    tidbits.push(`Best: ${STAT_CATEGORIES[best.categoryKey].unit} ${best.score}/${Math.round(roundMax)}`)
+  }
+
+  const fraction = entry.maxScore > 0 ? entry.dailyScore / entry.maxScore : 0
+  return { verdict: DAY_VERDICTS[scoreTier(fraction)], tidbits, hintsUsed, hintFree }
 }

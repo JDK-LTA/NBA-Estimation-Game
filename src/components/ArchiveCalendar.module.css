@@ -37,14 +37,51 @@
 }
 
 .day {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
   aspect-ratio: 1;
   min-height: 2.4rem;
+  padding: 0;
+  overflow: hidden;
   border: 2px solid transparent;
   border-radius: 10px;
   background: transparent;
   color: color-mix(in srgb, var(--ink) 35%, transparent);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.dayNumber {
+  font-size: 0.95rem;
+}
+
+.dayScore {
+  font-size: 0.62rem;
+  font-weight: 800;
+  opacity: 0.85;
+}
+
+/* Played on the day without a single hint: a gold corner. */
+.hintFree::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 0.8rem solid #fab005;
+  border-left: 0.8rem solid transparent;
+  content: '';
+}
+
+/* Practice-only days keep the tier hue but washed out. */
+.practiceOnly {
+  filter: saturate(0.2);
+  opacity: 0.85;
 }
 
 .available {
@@ -111,6 +148,79 @@
 
 .detailDate {
   font-size: 1.05rem;
+}
+
+.detailBody {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.result {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.resultMuted {
+  filter: saturate(0.2);
+  opacity: 0.85;
+}
+
+.resultHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+}
+
+.resultHead strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.resultHead small {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.resultLabel {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.resultVerdict {
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.tidbits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tidbits li {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.tidbits .gold {
+  background: linear-gradient(135deg, #ffe066, #fab005);
+  color: #3b2a00;
 }
 
 .chips {

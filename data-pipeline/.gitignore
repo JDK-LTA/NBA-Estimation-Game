@@ -1,0 +1,4 @@
+# Raw nba_api responses cached by cache_utils.py (see TDD.md 3.4).
+# Safe to delete anytime - it'll just be re-fetched from nba_api on next run.
+.cache/
+__pycache__/

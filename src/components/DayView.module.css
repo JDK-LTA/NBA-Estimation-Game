@@ -1,0 +1,87 @@
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.tab:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+
+.tabActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.tabIndex {
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tabName {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.tabMeta {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  display: grid;
+  width: 1.4rem;
+  height: 1.4rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--good);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.next {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .tab {
+    padding: 0.5rem 0.55rem;
+  }
+
+  .tabName {
+    font-size: 1rem;
+  }
+
+  .tabMeta {
+    font-size: 0.72rem;
+  }
+}

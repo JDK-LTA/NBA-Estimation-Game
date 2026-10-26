@@ -1,0 +1,120 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  background: var(--navy);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+
+.kicker {
+  color: rgb(255 255 255 / 70%);
+  font-size: 0.8rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.total {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 8vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.total small {
+  color: rgb(255 255 255 / 60%);
+  font-size: 0.45em;
+  font-weight: 600;
+}
+
+.verdict {
+  font-weight: 700;
+}
+
+.base {
+  color: rgb(255 255 255 / 68%);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bonusChip {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--accent);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.streak {
+  margin-top: 0.3rem;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.rounds {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.round {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 8%);
+}
+
+.roundName {
+  display: flex;
+  flex-direction: column;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.roundName small {
+  color: rgb(255 255 255 / 62%);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.squares {
+  letter-spacing: 0.1em;
+}
+
+.roundScore {
+  min-width: 2.8rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+}

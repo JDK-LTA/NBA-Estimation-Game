@@ -1,6 +1,6 @@
 // Phase 3: batch-generate the puzzle archive from the ingested dataset.
 //
-//   node data-pipeline/generate_daily_batch.ts [--start 2026-09-01] [--days 180] [--seed the-range-v1]
+//   node data-pipeline/generate_daily_batch.ts [--start 2026-09-01] [--days 487] [--seed the-range-v1]
 //
 // Existing puzzles are never regenerated (TDD.md 3.1): only missing dates in
 // the range are added, with cooldown history rebuilt from what is already on disk.
@@ -37,7 +37,7 @@ function parseArgs(argv: string[]) {
   const args = new Map<string, string>()
   for (let i = 0; i < argv.length; i += 2) args.set(argv[i].replace(/^--/, ''), argv[i + 1])
   const start = args.get('start') ?? '2026-09-01'
-  const days = Number(args.get('days') ?? 180)
+  const days = Number(args.get('days') ?? 487) // 2026-09-01 .. 2027-12-31
   const seed = args.get('seed') ?? 'the-range-v1'
   if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) throw new Error(`Invalid --start: ${start}`)
   if (!Number.isInteger(days) || days < 1 || days > 4000) throw new Error(`Invalid --days: ${days}`)

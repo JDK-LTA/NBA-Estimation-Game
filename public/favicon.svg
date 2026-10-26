@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="The Range">
+  <circle cx="32" cy="32" r="30" fill="#e8590c"/>
+  <g fill="none" stroke="#14213d" stroke-width="3" stroke-linecap="round">
+    <path d="M32 2v60M2 32h60"/>
+    <path d="M10 10c14 10 14 34 0 44M54 10c-14 10-14 34 0 44"/>
+  </g>
+</svg>

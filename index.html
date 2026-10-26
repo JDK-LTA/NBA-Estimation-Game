@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#14213d" />
+    <meta name="description" content="A daily NBA stat estimation game: place five players on the slider between two known anchors." />
+    <title>The Range - a daily NBA stat guessing game</title>
+    <script>
+      // Apply a saved theme before first paint to avoid a light/dark flash.
+      try {
+        var theme = JSON.parse(localStorage.getItem('range.v1.theme'))
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme
+      } catch (error) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

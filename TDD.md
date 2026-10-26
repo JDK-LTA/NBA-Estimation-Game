@@ -403,6 +403,8 @@ Player
   photoAttribution string (e.g. "NBA.com" or "Wikipedia - CC BY-SA")
   position      string
   teams         string[] (teams played for, for flavor text)
+  firstYear     number | null  (start year of first season, e.g. 2003 for 2003-04)
+  lastYear      number | null  (start year of last season played)
 
 StatCategory
   key           string   (e.g. "ppg", "bpg", "apg")
@@ -481,8 +483,16 @@ InfiniteModeConfig
   hintsPerRound             number
   seasonEligibilityCutoff   number
   careerEligibilityCutoff   number
+  seasonFrom                number  (first season start year allowed, e.g. 2006
+                                     for 2006-07; default = first season in data)
+  seasonTo                  number  (last season start year allowed)
   rangeSizeOverrides        Record<categoryKey, number> | null
 ```
+
+`seasonFrom`/`seasonTo` limit which seasons can appear: single-season and
+playoff rows must start inside the range, and career rows keep players whose
+careers overlap it (using `Player.firstYear`/`lastYear`). A range covering all
+the data means no filtering.
 
 Puzzles are generated **offline** and shipped as static JSON — no need for a
 live database or backend server for the MVP. `UserDailyHistoryEntry` records
@@ -868,6 +878,16 @@ outright.
   accuracy by stat and by scope). Percentages are placement points as a share
   of each round's own maximum, so rounds of different sizes compare fairly;
   order bonuses are counted separately.
+- **Scope mix and recency in the daily:** each round's scope is drawn with
+  weights career 4 / single season 4 / playoffs 2, so playoff rounds are
+  about half as common as the others. Season rows (and careers still active
+  in that window) from the latest 20 seasons are 2x as likely to be picked as
+  older ones: in the shipped archive about 79% of season/playoff entries are
+  from 2006-07 or later (67% if uniform), and earlier eras still appear.
+- **Round type is always visible:** every round shows a colour-coded badge
+  (Career / Single Season / Playoff Run) with a one-line explanation, the
+  round tabs carry the badge, and each player's line says what their number
+  refers to ("Career", "2016-17" or "2016-17 playoffs").
 - **Archive immutability:** the batch script never regenerates an existing
   date; it only fills missing dates and rebuilds cooldown history from disk.
 - **Photos:** only players that appear in generated puzzles get a downloaded
@@ -940,10 +960,12 @@ Things to know while testing this way:
   the pipeline's API cache. The committed data is roughly 10 MB of JSON plus
   the player photos.
 - **Keep the archive ahead of the calendar.** The shipped puzzles end on
-  2027-02-27; after that the Daily tab shows "No puzzle for this date".
+  2027-12-31; after that the Daily tab shows "No puzzle for this date".
   Extend it well before then (existing dates are never regenerated):
-  `npm run generate:puzzles -- --start 2026-09-01 --days 365`, then
-  `npm run photos`, commit and redeploy.
+  `npm run generate:puzzles -- --start 2026-09-01 --days 1000` (about
+  2029-05; the script accepts up to 4,000 days), then `npm run photos`,
+  commit and redeploy. Each year file is loaded whole when that year's puzzle
+  is opened (about 0.8 MB uncompressed for a full year, far less gzipped).
 - **Photos and licensing:** the headshots come from NBA.com's public CDN. That
   is fine for local development, but review their terms before making a
   public site (Risks #8); the fallback is deleting `public/images/players/`,

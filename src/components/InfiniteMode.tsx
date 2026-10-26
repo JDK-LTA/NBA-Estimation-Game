@@ -10,6 +10,7 @@ import {
 } from '../logic/infiniteMode.ts'
 import { createRng, randomSeed } from '../logic/rng.ts'
 import { scoreRound, totalHintsUsed } from '../logic/roundScoring.ts'
+import { FIRST_SEASON_YEAR, LAST_SEASON_YEAR, seasonLabel } from '../logic/seasons.ts'
 import { useGame } from '../hooks/useGame.ts'
 import {
   CATEGORY_KEYS,
@@ -24,6 +25,14 @@ import { RoundBoard } from './RoundBoard.tsx'
 import { StatusMessage } from './StatusMessage.tsx'
 import { Stepper } from './Stepper.tsx'
 import styles from './InfiniteMode.module.css'
+
+const SEASON_YEARS = Array.from({ length: LAST_SEASON_YEAR - FIRST_SEASON_YEAR + 1 }, (_, i) => FIRST_SEASON_YEAR + i)
+
+const SEASON_PRESETS = [
+  { label: 'All seasons', from: FIRST_SEASON_YEAR },
+  { label: 'Last 20', from: LAST_SEASON_YEAR - 19 },
+  { label: 'Last 10', from: LAST_SEASON_YEAR - 9 },
+]
 
 interface Session {
   id: number
@@ -99,6 +108,10 @@ export function InfiniteMode({ players, onRoundComplete }: InfiniteModeProps) {
   }, [config])
 
   const update = (patch: Partial<InfiniteModeConfig>) => setConfig((previous) => ({ ...previous, ...patch }))
+  const setSeasonFrom = (year: number) =>
+    setConfig((previous) => ({ ...previous, seasonFrom: year, seasonTo: Math.max(year, previous.seasonTo) }))
+  const setSeasonTo = (year: number) =>
+    setConfig((previous) => ({ ...previous, seasonTo: year, seasonFrom: Math.min(year, previous.seasonFrom) }))
 
   const toggleCategory = (key: CategoryKey) => {
     const selected = config.categoryKeyPool.includes(key)
@@ -235,6 +248,48 @@ export function InfiniteMode({ players, onRoundComplete }: InfiniteModeProps) {
               <span className={styles.helper}>Lower means more famous names (easier). Higher pulls in deep cuts (harder).</span>
             </label>
           )}
+
+          <fieldset className={`${styles.field} ${styles.wide}`}>
+            <legend>Seasons in the pool</legend>
+            <div className={styles.seasonRow}>
+              <label className={styles.seasonSelect}>
+                <span>From</span>
+                <select value={config.seasonFrom} onChange={(event) => setSeasonFrom(Number(event.target.value))}>
+                  {SEASON_YEARS.map((year) => (
+                    <option key={year} value={year}>
+                      {seasonLabel(year)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={styles.seasonSelect}>
+                <span>To</span>
+                <select value={config.seasonTo} onChange={(event) => setSeasonTo(Number(event.target.value))}>
+                  {SEASON_YEARS.map((year) => (
+                    <option key={year} value={year}>
+                      {seasonLabel(year)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className={styles.chips}>
+                {SEASON_PRESETS.map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    className={`${styles.chip} ${config.seasonFrom === preset.from && config.seasonTo === LAST_SEASON_YEAR ? styles.chipOn : ''}`}
+                    onClick={() => update({ seasonFrom: preset.from, seasonTo: LAST_SEASON_YEAR })}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <span className={styles.helper}>
+              Single-season and playoff rounds only use seasons in this range. Career rounds keep players whose
+              careers overlap it.
+            </span>
+          </fieldset>
         </div>
 
         <details className={styles.advanced}>

@@ -1,0 +1,159 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.55rem 0.65rem 0.6rem;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  list-style: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.selected {
+  border-color: var(--c);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent), var(--shadow);
+}
+
+.main {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.15rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.main:disabled {
+  cursor: default;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.status {
+  flex: none;
+  text-align: right;
+}
+
+.guess {
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.guess small {
+  margin-left: 0.2rem;
+  color: var(--ink-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.unplaced {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.score {
+  display: inline-block;
+  min-width: 2.6rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 850;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.tier0 {
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+.tier1 {
+  background: color-mix(in srgb, var(--bad) 22%, transparent);
+  color: var(--bad);
+}
+
+.tier2 {
+  background: color-mix(in srgb, var(--warn) 25%, transparent);
+  color: color-mix(in srgb, var(--warn) 70%, var(--ink));
+}
+
+.tier3 {
+  background: color-mix(in srgb, #fcc419 30%, transparent);
+  color: color-mix(in srgb, #e67700 70%, var(--ink));
+}
+
+.tier4 {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hintButton {
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.hintButton:hover:not(:disabled) {
+  border-color: var(--c);
+}
+
+.hintButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pips {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.pips i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.result {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.result strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,143 @@
+.wrapper {
+  /* Room for markers that sit half outside the track at 0% and 100%. */
+  padding: 0 calc(var(--marker, 42px) / 2 + 6px);
+}
+
+.stage {
+  position: relative;
+  cursor: crosshair;
+  touch-action: pan-y;
+  transition: height 0.18s ease;
+  user-select: none;
+}
+
+.track {
+  position: absolute;
+  inset: 0;
+}
+
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 999px;
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--ink) 22%, transparent) 1px, transparent 1px) 0 0 / 10% 100%,
+    linear-gradient(90deg, var(--surface-2), color-mix(in srgb, var(--accent) 30%, var(--surface-2)));
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.band {
+  position: absolute;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 18%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--c) 55%, transparent);
+  pointer-events: none;
+}
+
+.bandActive {
+  background: color-mix(in srgb, var(--c) 38%, transparent);
+  border: 2px solid var(--c);
+}
+
+.endLabel {
+  position: absolute;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+  pointer-events: none;
+}
+
+.endLeft {
+  left: 0;
+}
+
+.endRight {
+  right: 0;
+}
+
+.stem {
+  position: absolute;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--c);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.truthStem {
+  opacity: 0.45;
+}
+
+.marker {
+  position: absolute;
+  width: var(--marker);
+  height: var(--marker);
+  margin-left: calc(var(--marker) / -2);
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 0.12s ease;
+}
+
+.marker:active {
+  cursor: grabbing;
+}
+
+.markerSelected {
+  transform: scale(1.14);
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 28%));
+}
+
+.markerGhost {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.pill {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.errorSpan {
+  position: absolute;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--c);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.truth {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: var(--marker);
+  margin-left: calc(var(--marker) / -2);
+  pointer-events: none;
+}
+
+.truthPill {
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--good-soft);
+  color: var(--good);
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

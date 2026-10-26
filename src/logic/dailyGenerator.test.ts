@@ -94,6 +94,40 @@ describe('generateBatch', () => {
     expect(used.get('ppg')!).toBeGreaterThan(used.get('tovpg')! * 2)
   })
 
+  it('makes playoff rounds less common than season and career rounds', () => {
+    const long = generateBatch(dataset, '2026-10-01', 150, 'scope-seed', config)
+    const counts = { career: 0, season: 0, playoffs: 0 }
+    for (const puzzle of long) for (const round of puzzle.rounds) counts[round.scope]++
+    expect(counts.playoffs).toBeGreaterThan(0)
+    expect(counts.playoffs).toBeLessThan(counts.season)
+    expect(counts.playoffs).toBeLessThan(counts.career)
+  })
+
+  it('leans toward recent seasons while keeping older ones possible', () => {
+    const seasons = Array.from({ length: 30 }, (_, i) => `${1996 + i}-${String((i + 97) % 100).padStart(2, '0')}`)
+    const eras = makeDataset({ playerCount: 400, step: 0.1, startValue: 1, seasons })
+    const recentShare = (recentSeasonWeight: number) => {
+      const batch = generateBatch(eras, '2026-10-01', 60, 'era-seed', { ...config, recentSeasonWeight })
+      let recent = 0
+      let total = 0
+      for (const puzzle of batch) {
+        for (const round of puzzle.rounds) {
+          if (round.scope === 'career') continue
+          for (const selection of round.players) {
+            total++
+            if (Number.parseInt(selection.season!.slice(0, 4), 10) >= 2006) recent++
+          }
+        }
+      }
+      return { share: recent / total, older: total - recent }
+    }
+
+    const biased = recentShare(2)
+    const neutral = recentShare(1)
+    expect(biased.share).toBeGreaterThan(neutral.share + 0.04)
+    expect(biased.older).toBeGreaterThan(0)
+  })
+
   it('respects the player cooldown', () => {
     const lastSeen = new Map<string, number>()
     puzzles.forEach((puzzle, day) => {

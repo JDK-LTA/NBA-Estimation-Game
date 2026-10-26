@@ -1,6 +1,7 @@
 import { STAT_CATEGORIES } from './categories.ts'
 import { generateRound, type RoundResult } from './puzzleGenerator.ts'
 import { shuffle, type Rng } from './rng.ts'
+import { FIRST_SEASON_YEAR, LAST_SEASON_YEAR } from './seasons.ts'
 import {
   CATEGORY_KEYS,
   SCOPES,
@@ -24,12 +25,18 @@ export const DEFAULT_INFINITE_CONFIG: InfiniteModeConfig = {
   hintsPerRound: 3,
   seasonEligibilityCutoff: 100,
   careerEligibilityCutoff: 500,
+  seasonFrom: FIRST_SEASON_YEAR,
+  seasonTo: LAST_SEASON_YEAR,
   rangeSizeOverrides: null,
 }
 
 function clampInt(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min
   return Math.min(max, Math.max(min, Math.round(value)))
+}
+
+function clampSeasonYear(value: number | undefined, fallback: number): number {
+  return clampInt(value !== undefined && Number.isFinite(value) ? value : fallback, FIRST_SEASON_YEAR, LAST_SEASON_YEAR)
 }
 
 /** Clamps every field into a safe range (TDD.md Risks #10). */
@@ -51,6 +58,8 @@ export function sanitizeInfiniteConfig(config: InfiniteModeConfig): InfiniteMode
   }
 
   const limits = INFINITE_LIMITS
+  const seasonA = clampSeasonYear(config.seasonFrom, FIRST_SEASON_YEAR)
+  const seasonB = clampSeasonYear(config.seasonTo, LAST_SEASON_YEAR)
   return {
     categoryKeyPool: pool.length > 0 ? pool : [...DEFAULT_INFINITE_CONFIG.categoryKeyPool],
     scope: SCOPES.includes(config.scope) ? config.scope : DEFAULT_INFINITE_CONFIG.scope,
@@ -66,6 +75,8 @@ export function sanitizeInfiniteConfig(config: InfiniteModeConfig): InfiniteMode
       limits.careerEligibilityCutoff.min,
       limits.careerEligibilityCutoff.max,
     ),
+    seasonFrom: Math.min(seasonA, seasonB),
+    seasonTo: Math.max(seasonA, seasonB),
     rangeSizeOverrides,
   }
 }
@@ -89,6 +100,7 @@ export function generateInfiniteRound(
         eligibility: {
           seasonEligibilityCutoff: config.seasonEligibilityCutoff,
           careerEligibilityCutoff: config.careerEligibilityCutoff,
+          seasonRange: { from: config.seasonFrom, to: config.seasonTo },
         },
         rangeSize: config.rangeSizeOverrides?.[categoryKey],
         maxAttempts: 150,

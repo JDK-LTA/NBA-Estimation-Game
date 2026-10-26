@@ -1,9 +1,11 @@
 import { STAT_CATEGORIES } from './categories.ts'
 import { getEligiblePool, type EligibilityOptions } from './eligibility.ts'
-import { pickOne, randomInt, shuffle, type Rng } from './rng.ts'
+import { pickWeighted, shuffle, shuffleWeighted, type Rng } from './rng.ts'
+import type { RowWeight } from './seasons.ts'
 import type {
   CategoryKey,
   Dataset,
+  Player,
   PlayerStatValue,
   PuzzleRound,
   RoundPlayerSelection,
@@ -25,6 +27,8 @@ export interface RoundGenerationOptions {
   rangeSize?: number
   /** Allowed deviation from the nominal width, as a fraction of it (0 = exact). */
   rangeLeeway?: number
+  /** Relative likelihood of each stat row being picked (e.g. favouring recent seasons); default 1. */
+  weightOf?: RowWeight
   excludedPlayerIds?: ReadonlySet<string>
   /** Anchor pairs (see `anchorPairKey`) that must not be reused. */
   excludedAnchorPairs?: ReadonlySet<string>
@@ -41,11 +45,21 @@ export function anchorPairKey(playerIdA: string, playerIdB: string): string {
 interface Candidate {
   row: PlayerStatValue
   units: number
+  weight: number
 }
 
 /** Values are compared in whole display units (e.g. tenths) to avoid float drift. */
-function toCandidates(pool: PlayerStatValue[], scale: number): Candidate[] {
-  return pool.map((row) => ({ row, units: Math.round(row.value * scale) }))
+function toCandidates(
+  pool: PlayerStatValue[],
+  scale: number,
+  players: Record<string, Player>,
+  weightOf: RowWeight | undefined,
+): Candidate[] {
+  return pool.map((row) => ({
+    row,
+    units: Math.round(row.value * scale),
+    weight: weightOf ? weightOf(row, players[row.playerId]) : 1,
+  }))
 }
 
 /** First index whose units >= target (list is sorted ascending by units). */
@@ -68,7 +82,7 @@ function onePerPlayer(rng: Rng, candidates: Candidate[]): Candidate[] {
     if (list) list.push(candidate)
     else byPlayer.set(candidate.row.playerId, [candidate])
   }
-  return [...byPlayer.values()].map((list) => pickOne(rng, list))
+  return [...byPlayer.values()].map((list) => pickWeighted(rng, list, (candidate) => candidate.weight))
 }
 
 /**
@@ -96,7 +110,7 @@ function selectMiddlePlayers(
   }
 
   for (const bin of bins) {
-    for (const candidate of shuffle(rng, bin)) {
+    for (const candidate of shuffleWeighted(rng, bin, (item) => item.weight)) {
       if (fits(candidate)) {
         chosen.push(candidate)
         break
@@ -105,7 +119,7 @@ function selectMiddlePlayers(
   }
 
   if (chosen.length < count) {
-    for (const candidate of shuffle(rng, candidates)) {
+    for (const candidate of shuffleWeighted(rng, candidates, (item) => item.weight)) {
       if (chosen.length === count) break
       if (!chosen.includes(candidate) && fits(candidate)) chosen.push(candidate)
     }
@@ -155,6 +169,8 @@ export function generateRound(
   const pool = toCandidates(
     getEligiblePool(dataset, categoryKey, scope, options.eligibility, options.excludedPlayerIds),
     scale,
+    dataset.players,
+    options.weightOf,
   )
   if (pool.length < middlePlayerCount + 2) {
     return { ok: false, reason: `Only ${pool.length} eligible players for ${categoryKey} / ${scope}.` }
@@ -164,7 +180,7 @@ export function generateRound(
   const maxAttempts = options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const low = pool[randomInt(rng, pool.length)]
+    const low = pickWeighted(rng, pool, (candidate) => candidate.weight)
 
     const highStart = lowerBound(pool, low.units + rangeUnits - leewayUnits)
     const highEnd = lowerBound(pool, low.units + rangeUnits + leewayUnits + 1)
@@ -174,7 +190,7 @@ export function generateRound(
     }
     if (highCandidates.length === 0) continue
 
-    const high = pickOne(rng, highCandidates)
+    const high = pickWeighted(rng, highCandidates, (candidate) => candidate.weight)
     const highUnits = high.units
     const windowUnits = highUnits - low.units
     const pairKey = anchorPairKey(low.row.playerId, high.row.playerId)

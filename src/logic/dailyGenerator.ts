@@ -5,7 +5,8 @@ import {
   generateRound,
   type RoundResult,
 } from './puzzleGenerator.ts'
-import { createRng, shuffle, type Rng } from './rng.ts'
+import { createRng, shuffle, shuffleWeighted, type Rng } from './rng.ts'
+import { inferLatestSeasonYear, recencyWeight } from './seasons.ts'
 import {
   CATEGORY_KEYS,
   SCOPES,
@@ -33,6 +34,11 @@ export interface DailyGenerationConfig {
   /** Relative likelihood of each category appearing; missing keys count as 1. */
   categoryWeights: Partial<Record<CategoryKey, number>>
   scopes: readonly Scope[]
+  /** Relative likelihood of each scope for a round; missing keys count as 1. */
+  scopeWeights: Partial<Record<Scope, number>>
+  /** Rows from the latest `recentSeasonYears` seasons count `recentSeasonWeight` times as much as older ones. */
+  recentSeasonYears: number
+  recentSeasonWeight: number
   /** Days before the same player can appear again. */
   playerCooldownDays: number
   /** Days before the same two players can anchor a round together again. */
@@ -57,14 +63,23 @@ export const DEFAULT_CATEGORY_WEIGHTS: Partial<Record<CategoryKey, number>> = {
   tovpg: 1,
 }
 
+export const DEFAULT_SCOPE_WEIGHTS: Partial<Record<Scope, number>> = {
+  career: 4,
+  season: 4,
+  playoffs: 2,
+}
+
 export const DEFAULT_DAILY_CONFIG: DailyGenerationConfig = {
   middlePlayerCount: DEFAULT_MIDDLE_PLAYER_COUNT,
   eligibility: DEFAULT_DIFFICULTY,
   categoryKeys: CATEGORY_KEYS,
   categoryWeights: DEFAULT_CATEGORY_WEIGHTS,
   scopes: SCOPES,
+  scopeWeights: DEFAULT_SCOPE_WEIGHTS,
+  recentSeasonYears: 20,
+  recentSeasonWeight: 2,
   playerCooldownDays: 14,
-  anchorPairCooldownDays: 365,
+  anchorPairCooldownDays: 730,
 }
 
 export function emptyHistory(): RecentHistory {
@@ -153,9 +168,14 @@ export function generateDailyPuzzle(
   const cooldownPairs = pairsInCooldown(history, dayIndex, config.anchorPairCooldownDays)
   const usedToday = new Set<string>()
   const rounds: PuzzleRound[] = []
+  const weightOf = recencyWeight(
+    inferLatestSeasonYear(dataset),
+    config.recentSeasonYears,
+    config.recentSeasonWeight,
+  )
 
   const tryCategory = (categoryKey: CategoryKey): PuzzleRound | null => {
-    const scopes = shuffle(rng, config.scopes)
+    const scopes = shuffleWeighted(rng, config.scopes, (scope) => config.scopeWeights[scope] ?? 1)
     // Relax gradually: full cooldowns in any scope first, then only the anchor-pair one, then none.
     for (const level of ['full', 'pairs', 'none'] as const) {
       for (const scope of scopes) {
@@ -171,6 +191,7 @@ export function generateDailyPuzzle(
             excludedPlayerIds: excluded,
             excludedAnchorPairs: level === 'none' ? undefined : cooldownPairs,
             maxAttempts: config.maxAttemptsPerRound,
+            weightOf,
           },
           rng,
         )

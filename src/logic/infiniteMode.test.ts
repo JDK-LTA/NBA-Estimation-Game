@@ -53,6 +53,50 @@ describe('generateInfiniteRound', () => {
   })
 })
 
+describe('season range', () => {
+  const seasons = Array.from({ length: 30 }, (_, i) => `${1996 + i}-${String((i + 97) % 100).padStart(2, '0')}`)
+  const eras = makeDataset({ playerCount: 300, step: 0.1, startValue: 1, seasons })
+
+  it('only draws players from seasons inside the chosen range', () => {
+    for (let i = 0; i < 20; i++) {
+      const result = generateInfiniteRound(
+        eras,
+        config({ scope: 'playoffs', seasonEligibilityCutoff: 150, seasonFrom: 2010, seasonTo: 2020 }),
+        createRng(`season-range-${i}`),
+      )
+      if (!result.ok) throw new Error(result.reason)
+      for (const selection of result.round.players) {
+        const year = Number.parseInt(selection.season!.slice(0, 4), 10)
+        expect(year).toBeGreaterThanOrEqual(2010)
+        expect(year).toBeLessThanOrEqual(2020)
+      }
+    }
+  })
+
+  it('fails gracefully when the range leaves too few players', () => {
+    const result = generateInfiniteRound(
+      eras,
+      config({ seasonFrom: 2020, seasonTo: 2020, categoryKeyPool: ['ppg'] }),
+      createRng('narrow'),
+    )
+    expect(result.ok).toBe(false)
+  })
+
+  it('clamps, orders and defaults the range', () => {
+    expect(sanitizeInfiniteConfig(config({ seasonFrom: 2024, seasonTo: 2005 }))).toMatchObject({
+      seasonFrom: 2005,
+      seasonTo: 2024,
+    })
+    expect(sanitizeInfiniteConfig(config({ seasonFrom: 1800, seasonTo: 3000 }))).toMatchObject({
+      seasonFrom: 1996,
+      seasonTo: 2025,
+    })
+    const legacy = { ...config(), seasonFrom: undefined, seasonTo: undefined } as unknown as InfiniteModeConfig
+    expect(sanitizeInfiniteConfig(legacy)).toMatchObject({ seasonFrom: 1996, seasonTo: 2025 })
+    expect(sanitizeInfiniteConfig(config({ seasonFrom: Number.NaN }))).toMatchObject({ seasonFrom: 1996 })
+  })
+})
+
 describe('sanitizeInfiniteConfig', () => {
   it('clamps absurd numbers into the allowed limits', () => {
     const safe = sanitizeInfiniteConfig(

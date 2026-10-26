@@ -6,6 +6,8 @@ interface FixtureOptions {
   startValue?: number
   step?: number
   categoryKeys?: readonly CategoryKey[]
+  /** Seasons assigned to players in rotation (player i gets seasons[i % length]). */
+  seasons?: readonly string[]
 }
 
 /**
@@ -17,9 +19,11 @@ export function makeDataset({
   startValue = 2,
   step = 0.2,
   categoryKeys = CATEGORY_KEYS,
+  seasons = ['2023-24'],
 }: FixtureOptions = {}): Dataset {
   const players: Record<string, Player> = {}
   for (let i = 0; i < playerCount; i++) {
+    const firstYear = 2000 + (i % 20)
     players[String(i)] = {
       id: String(i),
       fullName: `Player ${i}`,
@@ -27,6 +31,8 @@ export function makeDataset({
       photoAttribution: null,
       position: 'G',
       teams: i % 2 === 0 ? ['LAL'] : ['BOS'],
+      firstYear,
+      lastYear: firstYear + 5 + (i % 5),
     }
   }
 
@@ -39,7 +45,7 @@ export function makeDataset({
           playerId: String(i),
           categoryKey,
           scope,
-          season: scope === 'career' ? null : '2023-24',
+          season: scope === 'career' ? null : seasons[i % seasons.length],
           value: Math.round((startValue + i * step) * 10) / 10,
           leaderboardRank: playerCount - i,
         })

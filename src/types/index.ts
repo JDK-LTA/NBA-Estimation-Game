@@ -24,6 +24,9 @@ export interface Player {
   photoAttribution: string | null
   position: string | null
   teams: string[]
+  /** Start year of the first and last NBA season played (2002 means 2002-03). */
+  firstYear?: number | null
+  lastYear?: number | null
 }
 
 export interface StatCategory {
@@ -129,6 +132,9 @@ export interface InfiniteModeConfig {
   hintsPerRound: number
   seasonEligibilityCutoff: number
   careerEligibilityCutoff: number
+  /** Season start years (inclusive) that rows or careers must overlap. */
+  seasonFrom: number
+  seasonTo: number
   rangeSizeOverrides: Partial<Record<CategoryKey, number>> | null
 }
 

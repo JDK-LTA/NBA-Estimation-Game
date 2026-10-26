@@ -45,3 +45,22 @@ export function shuffle<T>(rng: Rng, items: readonly T[]): T[] {
   }
   return copy
 }
+
+/** One item, chosen with probability proportional to its weight. */
+export function pickWeighted<T>(rng: Rng, items: readonly T[], weightOf: (item: T) => number): T {
+  const weights = items.map((item) => Math.max(0, weightOf(item)))
+  let roll = rng() * weights.reduce((sum, weight) => sum + weight, 0)
+  for (let i = 0; i < items.length; i++) {
+    if (roll < weights[i]) return items[i]
+    roll -= weights[i]
+  }
+  return items[items.length - 1]
+}
+
+/** Random order where heavier items tend to come first (weighted sampling without replacement). */
+export function shuffleWeighted<T>(rng: Rng, items: readonly T[], weightOf: (item: T) => number): T[] {
+  return items
+    .map((item) => ({ item, key: rng() ** (1 / Math.max(weightOf(item), 1e-9)) }))
+    .sort((a, b) => b.key - a.key)
+    .map(({ item }) => item)
+}
